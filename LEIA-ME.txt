@@ -1,2 +1,5 @@
-PWA Gerenciador de Banca com MG1 e MG2 calculados automaticamente.\nEntrada base e payout editáveis; multiplicadores não editáveis.\nMG1 = teto_centavos((entrada inicial + lucro-alvo)/payout).\nMG2 = teto_centavos((entrada inicial + MG1 + lucro-alvo)/payout).\nLucro-alvo = entrada inicial × payout.\nPreserva as chaves de armazenamento do PWA anterior.\nAntes de atualizar no GitHub Pages, exporte CSV como backup.\nPublique todos os arquivos na raiz do repositório.\n
-Exposição de três LOSS mostrada em R$, % da banca inicial editável e % da banca atual.
+PWA com MG1/MG2 automáticos e coluna percentual de lucro/prejuízo sobre banca inicial no histórico e CSV.
+Percentual = resultado financeiro da operação / banca inicial cadastrada × 100.
+Preserva dados do navegador usando as mesmas chaves de armazenamento.
+Exporte CSV antes de atualizar como backup.
+Envie todos os arquivos para a raiz do repositório GitHub Pages.
