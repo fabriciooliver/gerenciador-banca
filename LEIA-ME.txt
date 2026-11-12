@@ -1,7 +1,10 @@
-Gerenciador de Banca PWA — Versão 6
+Gerenciador de Banca V7 — Dark Premium
 
-Inclui banca inicial e payout editáveis; MG1 e MG2 para recuperar perdas e obter o lucro da entrada inicial; exposição sobre a banca inicial; histórico com percentual; metas diárias; Stop Win e Stop Loss; relatórios; calendário; backup e restauração JSON.
+Novidades visuais: tema escuro, cards, navegação inferior mobile, navegação desktop, botões WIN/LOSS/EMPATE destacados, responsividade.
+Todas as funcionalidades V6 preservadas: stop win/loss, metas, relatórios, calendário, backup/restauração, banca inicial e payout editáveis, MG1/MG2, histórico e CSV.
 
-ATUALIZAÇÃO GITHUB PAGES: faça backup JSON e exporte CSV primeiro. Envie TODOS os arquivos da pasta extraída para a RAIZ do repositório gerenciador-banca (inclusive enhancements.js). Faça commit e aguarde o deploy. Recarregue o PWA.
-
-Dados continuam no localStorage original do mesmo domínio e navegador. Backup JSON pode restaurá-los em outro dispositivo. O bloqueio de Stop Win/Stop Loss vale apenas para registros do PWA, não para a corretora.
+IMPORTANTE: Faça backup JSON antes de atualizar.
+Extraia o ZIP e envie TODOS os arquivos para a raiz do repositório GitHub Pages, incluindo premium.js.
+A mesma origem (URL) mantém o localStorage. Não limpe os dados do site.
+Se a versão anterior ficar em cache, feche e reabra o PWA ou recarregue a página.
+O aplicativo não executa operações financeiras.
