@@ -8,3 +8,5 @@ Extraia o ZIP e envie TODOS os arquivos para a raiz do repositório GitHub Pages
 A mesma origem (URL) mantém o localStorage. Não limpe os dados do site.
 Se a versão anterior ficar em cache, feche e reabra o PWA ou recarregue a página.
 O aplicativo não executa operações financeiras.
+
+V8: Stop Win e Stop Loss independentes por R$, % da banca inicial ou quantidade de WIN/LOSS do dia. Configurações incluídas no backup JSON.
