@@ -1,18 +1,2 @@
-GERENCIADOR DE BANCA — PRIMEIRO MODELO (SEM MARTINGALE)
-
-1. Extraia os arquivos do ZIP.
-2. No GitHub, crie um repositório público e envie todos os arquivos para a raiz.
-3. Settings > Pages > Deploy from a branch > main > / (root) > Save.
-4. Abra o endereço HTTPS do GitHub Pages no celular.
-5. Android: Chrome > menu > Instalar aplicativo / Adicionar à tela inicial.
-   iPhone: Safari > Compartilhar > Adicionar à Tela de Início.
-
-Funcionalidades: banca inicial editável, entrada manual editável, payout, percentual da banca, WIN/LOSS/EMPATE, gráfico, histórico, CSV, armazenamento local, uso offline após publicação.
-
-A primeira abertura inclui nove resultados diários importados da planilha original, banca inicial R$55,00. O saldo calculado após o histórico é R$61,65.
-
-Atenção: se publicar no MESMO endereço de uma versão anterior, o aplicativo reutiliza os registros de operações já salvos nesse navegador. Exclua lançamentos antigos manualmente se desejar.
-
-Não há Martingale neste modelo. O aplicativo não acessa a IQ Option nem opera automaticamente.
-
-ATUALIZAÇÃO: banca inicial editável em Configuração da banca e pelo botão Editar no topo. Clique em Salvar banca inicial.
+PWA Gerenciador de Banca com MG1 e MG2 calculados automaticamente.\nEntrada base e payout editáveis; multiplicadores não editáveis.\nMG1 = teto_centavos((entrada inicial + lucro-alvo)/payout).\nMG2 = teto_centavos((entrada inicial + MG1 + lucro-alvo)/payout).\nLucro-alvo = entrada inicial × payout.\nPreserva as chaves de armazenamento do PWA anterior.\nAntes de atualizar no GitHub Pages, exporte CSV como backup.\nPublique todos os arquivos na raiz do repositório.\n
+Exposição de três LOSS mostrada em R$, % da banca inicial editável e % da banca atual.
