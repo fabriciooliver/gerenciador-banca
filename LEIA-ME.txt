@@ -1,25 +1,18 @@
-# Gerenciador de Banca (PWA)
+GERENCIADOR DE BANCA — PRIMEIRO MODELO (SEM MARTINGALE)
 
-Aplicativo simples para registrar operações manualmente. Não se conecta à IQ Option e não executa operações.
+1. Extraia os arquivos do ZIP.
+2. No GitHub, crie um repositório público e envie todos os arquivos para a raiz.
+3. Settings > Pages > Deploy from a branch > main > / (root) > Save.
+4. Abra o endereço HTTPS do GitHub Pages no celular.
+5. Android: Chrome > menu > Instalar aplicativo / Adicionar à tela inicial.
+   iPhone: Safari > Compartilhar > Adicionar à Tela de Início.
 
-## Como testar no computador
-1. Extraia o ZIP.
-2. Abra a pasta em um servidor local (ex.: VS Code com Live Server).
-3. Acesse pelo navegador em `http://localhost`.
+Funcionalidades: banca inicial editável, entrada manual editável, payout, percentual da banca, WIN/LOSS/EMPATE, gráfico, histórico, CSV, armazenamento local, uso offline após publicação.
 
-> Para instalar como PWA em celular ou computador, publique em um endereço HTTPS. Abrir o arquivo `index.html` diretamente não ativa a instalação nem o modo offline.
+A primeira abertura inclui nove resultados diários importados da planilha original, banca inicial R$55,00. O saldo calculado após o histórico é R$61,65.
 
-## Publicação gratuita (GitHub Pages)
-1. Crie uma conta gratuita no GitHub, se ainda não tiver.
-2. Crie um repositório público e envie todos os arquivos desta pasta.
-3. Em Settings > Pages, escolha Deploy from a branch, selecione `main` e `/root`.
-4. Abra o endereço HTTPS gerado no celular.
-5. Android/Chrome: menu ⋮ > Instalar app ou Adicionar à tela inicial.
-   iPhone/Safari: Compartilhar > Adicionar à Tela de Início.
+Atenção: se publicar no MESMO endereço de uma versão anterior, o aplicativo reutiliza os registros de operações já salvos nesse navegador. Exclua lançamentos antigos manualmente se desejar.
 
-## Dados
-- A banca inicial é R$ 55,00.
-- Os nove resultados diários da planilha original foram importados como histórico.
-- Novos registros ficam salvos no armazenamento local do navegador/dispositivo.
-- Use Exportar CSV para fazer cópia do histórico.
-- Se limpar os dados do navegador, os lançamentos locais podem ser perdidos. Exporte o CSV periodicamente.
+Não há Martingale neste modelo. O aplicativo não acessa a IQ Option nem opera automaticamente.
+
+ATUALIZAÇÃO: banca inicial editável em Configuração da banca e pelo botão Editar no topo. Clique em Salvar banca inicial.
