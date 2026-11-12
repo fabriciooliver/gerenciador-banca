@@ -1,8 +1,33 @@
 /* Recursos V6: preserva as chaves da versão anterior */
 const LIMITS_KEY='gerenciador-banca-daily-limits-v1';
-const limitsDefault={goal:20,win:30,loss:15,winMode:"valor",lossMode:"valor"};
+const limitsDefault={goal:20,manualGoal:20,win:30,loss:15,winMode:"valor",lossMode:"valor"};
 function readLimits(){try{const v=JSON.parse(localStorage.getItem(LIMITS_KEY));return {...limitsDefault,...(v&&typeof v==='object'?v:{})};}catch{return {...limitsDefault};}}
 let limits=readLimits();
+// A meta por quantidade usa o lucro esperado de um WIN na ENTRADA inicial,
+// independentemente dos resultados efetivos em MG1/MG2.
+function projectedWinGoal(count=Number($('stopWin').value)){
+ const base=Number($('calcBase').value),payout=Number($('calcPayout').value);
+ if(!Number.isFinite(base)||base<=0||!Number.isFinite(payout)||payout<=0||!Number.isInteger(count)||count<0)return null;
+ return Math.round((Math.round(base*100)*payout/100)*count)/100;
+}
+function syncGoalPreview(){
+ const automatic=$('stopWinMode').value==='quantidade';
+ $('dailyGoal').readOnly=automatic;
+ $('dailyGoal').setAttribute('aria-readonly',String(automatic));
+ const info=$('goalAutoInfo');
+ if(automatic){
+  const amount=projectedWinGoal();
+  $('dailyGoal').value=amount===null?'':amount.toFixed(2);
+  info.textContent=amount===null?'Informe entrada inicial, payout e uma quantidade inteira válida.':'Automática: '+money(Number($('calcBase').value)*Number($('calcPayout').value)/100)+' por WIN × '+$('stopWin').value+' WINs = '+money(amount)+'.';
+ }else{info.textContent='Meta editável em reais.';}
+}
+function syncSavedAutoGoal(){
+ if(limits.winMode!=='quantidade')return;
+ const amount=projectedWinGoal(limits.win);
+ if(amount!==null&&limits.goal!==amount){limits.goal=amount;localStorage.setItem(LIMITS_KEY,JSON.stringify(limits));}
+ syncGoalPreview();
+}
+
 const dateToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 const dailyTotals=()=>{const d=new Map();for(const e of entries){if(!/^\d{4}-\d{2}-\d{2}$/.test(e.date||''))continue;d.set(e.date,(d.get(e.date)||0)+(Number(e.pnl)||0));}return d;};
 const getDailyTotal=(day)=>dailyTotals().get(day)||0;
@@ -10,7 +35,7 @@ function dailyCounts(day){const dayEntries=entries.filter(e=>e.date===day);retur
 function stopCurrent(day,type){const mode=limits[type+'Mode']||'valor';if(mode==='quantidade')return dailyCounts(day)[type];const pnl=getDailyTotal(day);if(mode==='percentual')return (type==='win'?pnl:-pnl)/initialBank*100;return type==='win'?pnl:-pnl;}
 function stopLabel(type){const mode=limits[type+'Mode']||'valor',name=type==='win'?'WIN':'LOSS';return mode==='quantidade'?name+'s':mode==='percentual'?'% da banca inicial':'R$';}
 function limitHit(day){for(const type of ['win','loss']){if(limits[type]>0&&stopCurrent(day,type)>=limits[type])return type==='win'?'Stop Win':'Stop Loss';}return null;}
-function renderLimits(){const today=dateToday(),pnl=getDailyTotal(today),hit=limitHit(today),progress=limits.goal>0?Math.max(0,Math.min(100,pnl/limits.goal*100)):0;
+function renderLimits(){syncSavedAutoGoal();const today=dateToday(),pnl=getDailyTotal(today),hit=limitHit(today),progress=limits.goal>0?Math.max(0,Math.min(100,pnl/limits.goal*100)):0;
  $('goalText').textContent='Meta diária: '+money(limits.goal)+' | Resultado de hoje: '+money(pnl);
  $('goalProgressText').textContent=limits.goal>0?percent(progress):'Meta desativada';$('goalBar').style.width=progress+'%';
  $('stopProgress').textContent=['win','loss'].map(type=>{const value=stopCurrent(today,type),limit=limits[type],mode=limits[type+'Mode']||'valor',fmt=n=>mode==='valor'?money(n):mode==='percentual'?percent(n):String(n);return (type==='win'?'Stop Win: ':'Stop Loss: ')+(limit>0?fmt(value)+' / '+fmt(limit)+' ('+stopLabel(type)+')':'desativado');}).join('  |  ');
@@ -27,12 +52,18 @@ function addReportRow(body,values){const tr=document.createElement('tr');for(con
 function renderCalendar(){const month=$('calendarMonth').value;if(!/^\d{4}-\d{2}$/.test(month))return;const [year,mo]=month.split('-').map(Number),count=new Date(year,mo,0).getDate(),offset=new Date(year,mo-1,1).getDay(),totals=dailyTotals(),grid=$('calendarGrid');grid.replaceChildren();for(const name of ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']){const el=document.createElement('div');el.className='cal-weekday';el.textContent=name;grid.appendChild(el);}for(let i=0;i<offset;i++){const el=document.createElement('div');el.className='cal-day empty-day';grid.appendChild(el);}for(let day=1;day<=count;day++){const key=month+'-'+String(day).padStart(2,'0'),v=totals.get(key),el=document.createElement('div');el.className='cal-day'+(v===undefined?'':v>0?' gain':v<0?' loss':'');const d=document.createElement('b');d.textContent=day;el.appendChild(d);if(v!==undefined){const value=document.createElement('span');value.textContent=money(v);el.appendChild(value);}grid.appendChild(el);}}
 function refreshExtras(){renderLimits();renderReports();renderCalendar();}
 for(const [id,key] of [['dailyGoal','goal'],['stopWin','win'],['stopLoss','loss'],['stopWinMode','winMode'],['stopLossMode','lossMode']])$(id).value=limits[key];
-for(const type of ['Win','Loss'])$('stop'+type+'Mode').addEventListener('change',()=>{$('stop'+type).step=$('stop'+type+'Mode').value==='quantidade'?'1':'0.01';});
+for(const type of ['Win','Loss'])$('stop'+type+'Mode').addEventListener('change',()=>{$('stop'+type).step=$('stop'+type+'Mode').value==='quantidade'?'1':'0.01';if(type==='Win'){if($('stopWinMode').value==='quantidade'){$('dailyGoal').dataset.manualGoal=$('dailyGoal').value;}else{$('dailyGoal').value=$('dailyGoal').dataset.manualGoal??limits.manualGoal??limits.goal;}syncGoalPreview();}});
+$('dailyGoal').dataset.manualGoal=String(limits.manualGoal??limits.goal);
+for(const id of ['stopWin','calcBase','calcPayout'])$(id).addEventListener('input',syncGoalPreview);
+$('dailyGoal').addEventListener('input',()=>{if($('stopWinMode').value!=='quantidade')$('dailyGoal').dataset.manualGoal=$('dailyGoal').value;});
+$('stopWin').step=$('stopWinMode').value==='quantidade'?'1':'0.01';
+$('stopLoss').step=$('stopLossMode').value==='quantidade'?'1':'0.01';
+syncGoalPreview();
 $('calendarMonth').value=dateToday().slice(0,7);$('calendarMonth').addEventListener('change',renderCalendar);
-$('saveLimits').addEventListener('click',()=>{const vals={goal:Number($('dailyGoal').value),win:Number($('stopWin').value),loss:Number($('stopLoss').value),winMode:$('stopWinMode').value,lossMode:$('stopLossMode').value};if(['goal','win','loss'].some(k=>!Number.isFinite(vals[k])||vals[k]<0||vals[k]>100000000)||['winMode','lossMode'].some(k=>!['valor','percentual','quantidade'].includes(vals[k]))||['win','loss'].some(k=>vals[k+'Mode']==='quantidade'&&!Number.isInteger(vals[k]))){alert('Informe limites válidos e não negativos. Para quantidade, use números inteiros. Zero desativa o limite.');return;}limits=vals;localStorage.setItem(LIMITS_KEY,JSON.stringify(limits));$('limitsSaved').textContent='✓ Limites salvos';refreshExtras();});
+$('saveLimits').addEventListener('click',()=>{syncGoalPreview();const vals={goal:Number($('dailyGoal').value),manualGoal:Number($('dailyGoal').dataset.manualGoal??limits.manualGoal??limits.goal),win:Number($('stopWin').value),loss:Number($('stopLoss').value),winMode:$('stopWinMode').value,lossMode:$('stopLossMode').value};if(vals.winMode==='quantidade'){const computed=projectedWinGoal(vals.win);if(computed===null){alert('Informe uma entrada inicial, payout e quantidade de WINs válidos para calcular a meta.');return;}vals.goal=computed;}else{vals.manualGoal=vals.goal;$('dailyGoal').dataset.manualGoal=String(vals.goal);}if(['goal','win','loss'].some(k=>!Number.isFinite(vals[k])||vals[k]<0||vals[k]>100000000)||['winMode','lossMode'].some(k=>!['valor','percentual','quantidade'].includes(vals[k]))||['win','loss'].some(k=>vals[k+'Mode']==='quantidade'&&!Number.isInteger(vals[k]))){alert('Informe limites válidos e não negativos. Para quantidade, use números inteiros. Zero desativa o limite.');return;}limits=vals;localStorage.setItem(LIMITS_KEY,JSON.stringify(limits));$('limitsSaved').textContent='✓ Limites salvos';refreshExtras();});
 $('tradeForm').addEventListener('submit',e=>{const day=$('date').value,hit=limitHit(day);if(hit){e.preventDefault();e.stopImmediatePropagation();alert(hit+' atingido em '+day.split('-').reverse().join('/')+'. O registro foi bloqueado. Para alterar o limite, ajuste Stop Win/Stop Loss em Metas e limites diários.');}},true);
 function downloadBlob(data,filename,mime){const url=URL.createObjectURL(new Blob([data],{type:mime})),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);}
-$('backupBtn').addEventListener('click',()=>{const backup={app:'gerenciador-banca',version:8,createdAt:new Date().toISOString(),initialBank,entries,mgConfig:{calcBase:$('calcBase').value,calcPayout:$('calcPayout').value},limits};downloadBlob(JSON.stringify(backup,null,2),'backup_gerenciador_banca_'+dateToday()+'.json','application/json');$('backupStatus').textContent='Backup gerado. Guarde o arquivo em local seguro.';});
+$('backupBtn').addEventListener('click',()=>{const backup={app:'gerenciador-banca',version:9,createdAt:new Date().toISOString(),initialBank,entries,mgConfig:{calcBase:$('calcBase').value,calcPayout:$('calcPayout').value},limits};downloadBlob(JSON.stringify(backup,null,2),'backup_gerenciador_banca_'+dateToday()+'.json','application/json');$('backupStatus').textContent='Backup gerado. Guarde o arquivo em local seguro.';});
 $('restoreFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;const status=$('backupStatus');try{if(file.size>5*1024*1024)throw Error('Arquivo maior que 5 MB.');const raw=JSON.parse(await file.text());if(raw.app!=='gerenciador-banca'||!Array.isArray(raw.entries)||raw.entries.length>20000||!Number.isFinite(raw.initialBank)||raw.initialBank<=0)throw Error('Formato de backup inválido.');
  const clean=raw.entries.map((r,i)=>{if(!r||typeof r!=='object'||!/^\d{4}-\d{2}-\d{2}$/.test(r.date||'')||!Number.isFinite(r.pnl)||Math.abs(r.pnl)>1e9||!['WIN','LOSS','DRAW','HIST'].includes(r.outcome)||!Number.isFinite(Number(r.stake))||!Number.isFinite(Number(r.payout)))throw Error('Operação inválida na linha '+(i+1));return {id:String(r.id||'restored-'+i).slice(0,100),date:r.date,pair:String(r.pair||'').slice(0,120),stage:['ENTRADA','MG1','MG2'].includes(r.stage)?r.stage:'',stake:Number(r.stake),payout:Number(r.payout),outcome:r.outcome,pnl:r.pnl};});
  const cfg=raw.mgConfig&&typeof raw.mgConfig==='object'?raw.mgConfig:{},newLimits=raw.limits&&typeof raw.limits==='object'?raw.limits:limitsDefault;
@@ -40,7 +71,7 @@ $('restoreFile').addEventListener('change',async e=>{const file=e.target.files?.
  entries=clean;initialBank=Math.round(raw.initialBank*100)/100;localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));localStorage.setItem(BANK_KEY,String(initialBank));
  for(const id of ['calcBase','calcPayout']){if(cfg[id]!==undefined&&Number.isFinite(Number(cfg[id]))&&Number(cfg[id])>0)$(id).value=cfg[id];}
  localStorage.setItem(MG_CONFIG_KEY,JSON.stringify({calcBase:$('calcBase').value,calcPayout:$('calcPayout').value}));
- limits={...limitsDefault};for(const k of ['goal','win','loss'])if(Number.isFinite(newLimits[k])&&newLimits[k]>=0)limits[k]=newLimits[k];for(const k of ['winMode','lossMode'])if(['valor','percentual','quantidade'].includes(newLimits[k]))limits[k]=newLimits[k];localStorage.setItem(LIMITS_KEY,JSON.stringify(limits));
- for(const [id,k] of [['dailyGoal','goal'],['stopWin','win'],['stopLoss','loss'],['stopWinMode','winMode'],['stopLossMode','lossMode']])$(id).value=limits[k];render();status.textContent='✓ Backup restaurado com '+entries.length+' registros.';
+ limits={...limitsDefault};for(const k of ['goal','manualGoal','win','loss'])if(Number.isFinite(newLimits[k])&&newLimits[k]>=0)limits[k]=newLimits[k];for(const k of ['winMode','lossMode'])if(['valor','percentual','quantidade'].includes(newLimits[k]))limits[k]=newLimits[k];localStorage.setItem(LIMITS_KEY,JSON.stringify(limits));
+ for(const [id,k] of [['dailyGoal','goal'],['stopWin','win'],['stopLoss','loss'],['stopWinMode','winMode'],['stopLossMode','lossMode']])$(id).value=limits[k];$('dailyGoal').dataset.manualGoal=String(limits.manualGoal??limits.goal);syncGoalPreview();render();status.textContent='✓ Backup restaurado com '+entries.length+' registros.';
  }catch(err){status.textContent='Não foi possível restaurar: '+err.message;}finally{e.target.value='';}});
 refreshExtras();

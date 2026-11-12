@@ -10,3 +10,5 @@ Se a versão anterior ficar em cache, feche e reabra o PWA ou recarregue a pági
 O aplicativo não executa operações financeiras.
 
 V8: Stop Win e Stop Loss independentes por R$, % da banca inicial ou quantidade de WIN/LOSS do dia. Configurações incluídas no backup JSON.
+
+V9: Meta diária calculada automaticamente quando Stop Win = Quantidade de WINs. Fórmula: entrada base da calculadora × payout / 100 × quantidade de WINs. O campo fica somente leitura nessa modalidade e é recalculado ao alterar qualquer parâmetro. O valor manual é preservado para as demais modalidades.
