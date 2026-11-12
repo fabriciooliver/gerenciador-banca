@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14243a">
+  <meta name="description" content="Controle simples de banca e operações.">
+  <title>Gerenciador de Banca</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="logo">GB</div><div><strong>Gerenciador de Banca</strong><small>Seu controle de operações</small></div></div>
+    <button id="installBtn" class="install hidden" type="button">＋ Instalar app</button>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-top"><span>Saldo atual</span><span class="live-dot">● Controle manual</span></div>
+      <div class="balance" id="currentBalance">R$ 0,00</div>
+      <div class="hero-bottom"><span id="totalReturn">Rentabilidade: 0,00%</span><span id="initialBank">Banca inicial: R$ 55,00</span></div>
+    </section>
+
+    <section class="stats">
+      <article class="stat"><span>Lucro / prejuízo</span><strong id="totalPnl">R$ 0,00</strong></article>
+      <article class="stat"><span>Taxa de acerto</span><strong id="winRate">0%</strong></article>
+      <article class="stat"><span>Operações</span><strong id="tradeCount">0</strong></article>
+      <article class="stat"><span>Wins / Losses</span><strong id="winLoss">0 / 0</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="section-head"><div><h2>Nova operação</h2><p>Registre o resultado depois de operar.</p></div></div>
+      <form id="tradeForm">
+        <div class="form-grid">
+          <label>Data<input id="date" type="date" required></label>
+          <label>Par de moedas<input id="pair" type="text" placeholder="Ex.: EUR/USD"></label>
+          <label>Valor da entrada (R$)<input id="stake" type="number" min="0.01" step="0.01" placeholder="Ex.: 5,00" required></label>
+          <label>Retorno (%)<input id="payout" type="number" min="0" max="1000" step="0.1" value="85" required></label>
+          <label class="full">Resultado
+            <select id="outcome" required>
+              <option value="WIN">WIN — operação vencedora</option>
+              <option value="LOSS">LOSS — operação perdedora</option>
+              <option value="DRAW">EMPATE — devolução da entrada</option>
+            </select>
+          </label>
+        </div>
+        <div class="preview" id="preview">Resultado estimado: <strong>R$ 4,25</strong></div>
+        <button class="primary" type="submit">＋ Salvar operação</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div><h2>Evolução da banca</h2><p>Saldo acumulado por lançamento.</p></div>
+        <span class="period">Histórico completo</span>
+      </div>
+      <div class="chart-wrap"><canvas id="balanceChart" height="180" aria-label="Gráfico de evolução da banca"></canvas></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head"><div><h2>Histórico</h2><p>Seus resultados mais recentes.</p></div><button id="exportBtn" class="secondary" type="button">Exportar CSV</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Data</th><th>Par</th><th>Resultado</th><th>Lucro / perda</th><th></th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+      <p id="emptyState" class="empty hidden">Nenhuma operação registrada ainda.</p>
+    </section>
+
+    <section class="bottom-actions">
+      <button id="resetBtn" class="danger-outline" type="button">Reiniciar dados</button>
+      <span>Os dados ficam salvos neste dispositivo.</span>
+    </section>
+    <p class="disclaimer">Este aplicativo é apenas um controle manual. Não se conecta à IQ Option, não executa operações e não garante resultados financeiros.</p>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

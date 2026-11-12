@@ -1,0 +1,25 @@
+# Gerenciador de Banca (PWA)
+
+Aplicativo simples para registrar operações manualmente. Não se conecta à IQ Option e não executa operações.
+
+## Como testar no computador
+1. Extraia o ZIP.
+2. Abra a pasta em um servidor local (ex.: VS Code com Live Server).
+3. Acesse pelo navegador em `http://localhost`.
+
+> Para instalar como PWA em celular ou computador, publique em um endereço HTTPS. Abrir o arquivo `index.html` diretamente não ativa a instalação nem o modo offline.
+
+## Publicação gratuita (GitHub Pages)
+1. Crie uma conta gratuita no GitHub, se ainda não tiver.
+2. Crie um repositório público e envie todos os arquivos desta pasta.
+3. Em Settings > Pages, escolha Deploy from a branch, selecione `main` e `/root`.
+4. Abra o endereço HTTPS gerado no celular.
+5. Android/Chrome: menu ⋮ > Instalar app ou Adicionar à tela inicial.
+   iPhone/Safari: Compartilhar > Adicionar à Tela de Início.
+
+## Dados
+- A banca inicial é R$ 55,00.
+- Os nove resultados diários da planilha original foram importados como histórico.
+- Novos registros ficam salvos no armazenamento local do navegador/dispositivo.
+- Use Exportar CSV para fazer cópia do histórico.
+- Se limpar os dados do navegador, os lançamentos locais podem ser perdidos. Exporte o CSV periodicamente.
